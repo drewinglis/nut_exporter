@@ -1,10 +1,12 @@
 ### STAGE 1: Build ###
 
-FROM golang:1-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1-alpine AS builder
+ARG TARGETOS TARGETARCH TARGETVARIANT
 
 WORKDIR /app
 COPY . /app
-RUN go install
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH GOARM=${TARGETVARIANT#v} \
+  go build -trimpath -o /go/bin/nut_exporter .
 
 ### STAGE 2: Setup ###
 
